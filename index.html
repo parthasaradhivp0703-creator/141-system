@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090b"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg">
+<title>TF141 Tactical Command</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+<style>
+:root{--bg:#07090b;--pn:#0e1317;--ln:#1d2a22;--g:#39ff14;--a:#ffb000;--r:#ff2a2a;--tx:#bfe8c4;--mut:#5f7566}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:14px "Courier New",monospace;overscroll-behavior:none}
+button,input,select{font:inherit;color:var(--g);background:#0a1410;border:1px solid var(--ln);padding:9px 10px;border-radius:3px}
+button{cursor:pointer;text-transform:uppercase;letter-spacing:.05em}button.on{background:var(--g);color:#000}
+#app{display:flex;flex-direction:column;height:100%;padding-top:env(safe-area-inset-top,0)}
+main{flex:1;position:relative;overflow:hidden}section{position:absolute;inset:0;overflow:auto;padding:12px;display:none}section.on{display:block}
+nav{display:flex;border-top:1px solid var(--ln);background:var(--pn);padding-bottom:env(safe-area-inset-bottom,0)}
+nav button{flex:1;border:0;border-radius:0;background:none;padding:15px 4px;color:var(--mut)}nav button.on{color:var(--g);background:#0f1f14}
+h2{color:var(--a);font-size:13px;letter-spacing:.2em;margin:0 0 10px}.card{background:var(--pn);border:1px solid var(--ln);padding:10px;margin-bottom:10px}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.row>input{flex:1;min-width:0}.mut{color:var(--mut)}.me{border-color:var(--g)}
+#boot{position:fixed;inset:0;background:var(--bg);z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .5s}
+.coin{width:150px;height:150px;perspective:800px}.coin svg{width:100%;height:100%;animation:spin 3s linear 1;filter:drop-shadow(0 0 14px #39ff1455)}
+@keyframes spin{to{transform:perspective(800px) rotateY(360deg)}}
+.stencil{font:900 26px Impact,"Arial Black",sans-serif;letter-spacing:.25em;color:#d7e3da}
+.bar{width:220px;height:6px;background:#10181a;border:1px solid var(--ln)}.bar i{display:block;height:100%;width:0;background:var(--g);animation:fill 3s linear forwards}@keyframes fill{to{width:100%}}
+#gate{position:fixed;inset:0;background:var(--bg);z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+#sos{position:fixed;inset:0;z-index:100;background:var(--r);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:fl .6s infinite alternate}
+@keyframes fl{to{background:#5a0000}}#sos b{font:900 36px Impact,sans-serif;letter-spacing:.1em}
+#chat{height:calc(100% - 120px);overflow:auto;border:1px solid var(--ln);padding:8px;margin-bottom:8px;background:#050807}
+.m{margin-bottom:8px}.m .q{border-left:2px solid var(--a);padding-left:6px;color:var(--a);font-size:12px}.m.o{color:var(--a)}
+#mapv{padding:0}#map{position:absolute;inset:0}
+.ctl{position:absolute;left:8px;right:8px;z-index:5;display:flex;gap:6px;flex-wrap:wrap}.ctl button,.ctl input{background:#0a1410ee}.ctl input{flex:1;min-width:120px}
+#mtop{top:8px}#mbot{bottom:8px}#info{position:absolute;left:8px;bottom:56px;z-index:5;background:#0a1410ee;border:1px solid var(--ln);padding:6px 8px;display:none}
+.bcn{width:16px;height:16px;border-radius:50%;background:var(--g);box-shadow:0 0 0 0 #39ff1499;animation:pl 1.5s infinite}@keyframes pl{to{box-shadow:0 0 0 22px #39ff1400}}
+.tag{position:absolute;top:-18px;left:18px;color:var(--g);font-size:11px;white-space:nowrap;text-shadow:0 0 4px #000}
+.pin{width:14px;height:14px;border:2px solid #000}
+</style></head><body>
+<div id="boot"><div class="coin"><svg viewBox="0 0 100 100"><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f0ea"/><stop offset=".5" stop-color="#39ff14"/><stop offset="1" stop-color="#3b4a40"/></linearGradient></defs><circle cx="50" cy="50" r="47" fill="#0b1210" stroke="url(#gr)" stroke-width="4"/><circle cx="50" cy="50" r="38" fill="none" stroke="#8fa397" stroke-width="1.5"/><text x="50" y="60" text-anchor="middle" font-family="Impact,sans-serif" font-size="30" fill="url(#gr)">141</text></svg></div>
+<div class="stencil">TASK FORCE 141</div><div><div class="bar"><i></i></div><div class="mut" style="font-size:11px;margin-top:6px;text-align:center">SATELLITE UPLINK LOCKED</div></div></div>
+<div id="gate"><div class="stencil" style="font-size:18px">SQUAD PASSCODE</div><input id="pc" type="password" placeholder="PASSCODE" style="text-align:center"><button id="pcb">Enter</button><div id="pce" style="color:var(--r)"></div></div>
+<div id="sos"><b>SOS EMERGENCY BEACON</b><p id="sosby"></p><button id="sosoff" style="color:#000;background:#fff;margin-top:20px">Stand down</button></div>
+<div id="app"><main>
+<section id="comms" class="on"><h2>ENCRYPTED COMMS</h2><div id="chat"></div><div id="rp" class="mut"></div><div class="row"><input id="mi" placeholder="Transmit..."><button id="ms">Send</button></div></section>
+<section id="mapv"><div id="map"></div>
+ <div class="ctl" id="mtop"><input id="q" placeholder="Search place or lat,lng"><button id="qb">Go</button><button class="ly on" data-l="sat">Satellite</button><button class="ly" data-l="night">Night</button><button class="ly" data-l="terrain">Terrain</button></div>
+ <div id="info"></div>
+ <div class="ctl" id="mbot"><button class="md on">TARGET</button><button class="md">EXTRACT</button><button class="md">HAZARD</button><button class="md">RV POINT</button><button class="md">RULER</button><button id="fo">Lock on operative</button></div></section>
+<section id="intel"><h2>MISSION DOSSIERS</h2><div class="card"><div class="row"><input id="it" placeholder="Classified objective title"><button id="ia">Create</button></div><input id="ic" placeholder="Pinned coordinates (optional)" style="width:100%;margin-top:6px"></div><div id="il"></div></section>
+<section id="squad"><h2>OPERATIVES</h2><div id="sl"></div>
+ <div id="mine" class="card me" style="display:none"><b style="color:var(--g)">MY PROFILE</b><div class="row" style="margin-top:8px"><input id="cs" placeholder="Callsign"><input id="nm" placeholder="Name"><button id="sv">Save</button></div><div class="row" id="sts" style="margin-top:6px"></div><div style="margin-top:8px"><button id="rel">Release slot</button> <button id="nt">Enable alerts</button></div></div>
+ <button id="sosb" style="display:none;width:100%;background:var(--r);color:#fff;padding:16px;font-weight:bold">SOS EMERGENCY BEACON</button></section>
+</main>
+<nav><button data-t="comms" class="on">COMMS</button><button data-t="mapv">3D MAP</button><button data-t="intel">INTEL</button><button data-t="squad">SQUAD</button></nav></div>
+<script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script><script src="app.js"></script>
+</body></html>
